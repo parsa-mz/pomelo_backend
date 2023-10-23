@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from apps.transations.helpers import TransactionDAO
-from apps.transations.model import Transaction, PendingTransaction, SettledTransaction
+from apps.transations.model import PendingTransaction, SettledTransaction
 from apps.transations.schemas import EventSchema, InputData
 from apps.users.helpers import UserDAO
 from apps.users.models import User
@@ -111,18 +111,42 @@ def summarize_events(
     # Sort settled transactions
     sorted_settled_txns = sorted(settled_txns.items(), key=lambda x: x[1]['final_time'], reverse=True)
 
-    for txn_id, item in pending_txns.items():
-        TransactionDAO.save_pending_txn(user.id, txn_id, item['amount'], item['time'])
+    # for txn_id, item in pending_txns.items():
+    #     TransactionDAO.save_pending_txn(user.id, txn_id, item['amount'], item['time'])
+    #
+    # for txn_id, item in sorted_settled_txns:
+    #     TransactionDAO.save_settled_txn(user.id, txn_id, item['amount'], item['initial_time'], item['final_time'])
+    #
+    # # update user credit and payable
+    # UserDAO.update_user(user.id, available_credit[0], payable_balance[0])
 
-    for txn_id, item in sorted_settled_txns:
-        TransactionDAO.save_settled_txn(user.id, txn_id, item['amount'], item['initial_time'], item['final_time'])
+    pending_output = []
+    for txn_id, txn_data in pending_txns.items():
+        amount = txn_data['amount']
+        str_amount = f"${amount}" if txn_data['amount'] >= 0 else f"-${abs(amount)}"
+        pending_output.append(f"{txn_id}: {str_amount} @ time {txn_data['time']}")
 
-    # update user credit and payable
-    UserDAO.update_user(user.id, available_credit[0], payable_balance[0])
+    settled_output = []
+    for txn_id, txn_data in sorted_settled_txns:
+        amount = txn_data['amount']
+        str_amount = f"${amount}" if amount >= 0 else f"-${abs(amount)}"
+        settled_output.append(
+            f"{txn_id}: {str_amount} @ time {txn_data['initial_time']} (finalized @ time {txn_data['final_time']})")
 
     return {
         "available_credit": available_credit[0],
         "payable_balance": payable_balance[0],
-        "pending_txns": pending_txns,
-        "settled_txns": settled_txns
+        "pending_txns": pending_output,
+        "settled_txns": settled_output
     }
+
+
+@router.post("/clear")
+def clear_events(
+        user: User = Depends(IS_AUTHENTICATED)
+):
+
+    TransactionDAO.clear_pending_txns(user.id)
+    TransactionDAO.clear_settled_txns(user.id)
+
+    return {"status": "success"}

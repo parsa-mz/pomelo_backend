@@ -6,14 +6,6 @@ from core.settings import settings
 
 metadata = MetaData()
 
-Transaction = Table(
-    "transactions",
-    metadata,
-    Column("txn_id", String, primary_key=True),
-    Column("event_type", String),
-    Column("event_time", Integer),
-    Column("amount", Float),
-)
 
 PendingTransaction = Table(
     "pending_transactions",

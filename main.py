@@ -15,8 +15,8 @@ from core.utils import p_g
 
 
 def init_routers(app_: FastAPI) -> None:
-    app_.include_router(transaction_router, prefix="/transactions")
-    app_.include_router(user_router, prefix="/users")
+    app_.include_router(transaction_router, prefix="/api/transactions")
+    app_.include_router(user_router, prefix="/api/users")
 
 
 def make_middleware() -> List[Middleware]:
