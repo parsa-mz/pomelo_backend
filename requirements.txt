@@ -1,0 +1,9 @@
+fastapi
+pydantic
+pydantic-settings
+uvicorn
+sqlalchemy
+fastapi_pagination
+sentry_sdk
+psycopg2-binary
+databases
