@@ -111,14 +111,14 @@ def summarize_events(
     # Sort settled transactions
     sorted_settled_txns = sorted(settled_txns.items(), key=lambda x: x[1]['final_time'], reverse=True)
 
-    # for txn_id, item in pending_txns.items():
-    #     TransactionDAO.save_pending_txn(user.id, txn_id, item['amount'], item['time'])
-    #
-    # for txn_id, item in sorted_settled_txns:
-    #     TransactionDAO.save_settled_txn(user.id, txn_id, item['amount'], item['initial_time'], item['final_time'])
-    #
-    # # update user credit and payable
-    # UserDAO.update_user(user.id, available_credit[0], payable_balance[0])
+    for txn_id, item in pending_txns.items():
+        TransactionDAO.save_pending_txn(user.id, txn_id, item['amount'], item['time'])
+
+    for txn_id, item in sorted_settled_txns:
+        TransactionDAO.save_settled_txn(user.id, txn_id, item['amount'], item['initial_time'], item['final_time'])
+
+    # update user credit and payable
+    UserDAO.update_user(user.id, available_credit[0], payable_balance[0])
 
     pending_output = []
     for txn_id, txn_data in pending_txns.items():
