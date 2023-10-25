@@ -46,9 +46,9 @@ async def add_user(
 
 
 @router.post("/get-token", dependencies=[])
-def login(name: str):
+def login(data: UserCreateSchema):
     try:
-        query = User.select().where(User.c.name == name)
+        query = User.select().where(User.c.name == data.name)
         result = database.execute(query).fetchall()
 
         access_token = auth_middleware.generate_token({"user_id": result[0].id,})
