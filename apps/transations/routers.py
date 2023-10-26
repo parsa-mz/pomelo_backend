@@ -15,11 +15,13 @@ router = APIRouter()
 
 
 @router.get("/all/")
-def get_all():
-    st_query = SettledTransaction.select()
+def get_all(
+        user: User = Depends(IS_AUTHENTICATED)
+):
+    st_query = SettledTransaction.select().where(SettledTransaction.c.user_id == user.id)
     st_result = database.execute(st_query).fetchall()
 
-    pt_query = PendingTransaction.select()
+    pt_query = PendingTransaction.select().where(PendingTransaction.c.user_id == user.id)
     pt_result = database.execute(pt_query).fetchall()
 
     return {"settled_transactions": st_result, "pending_transactions": pt_result}
